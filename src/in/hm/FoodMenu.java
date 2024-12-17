@@ -1,7 +1,9 @@
 package in.hm;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,80 +15,126 @@ public class FoodMenu extends JFrame {
 
     private DefaultTableModel tableModel;
     private JTable foodTable;
+    private JComboBox<String> categoryComboBox;
+    private DefaultTableModel orderTableModel;
+    private JTable orderTable;
     private List<OrderItem> selectedItems = new ArrayList<>();
+    private String customerName;
+    private long customerNumber;
 
     public FoodMenu() {
         setTitle("Food Menu - Order System");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\food-icon.png";
-        ImageIcon icon = new ImageIcon(iconPath);
-        setIconImage(icon.getImage());
-
-        setSize(800, 600);
+        setSize(1000, 700);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
 
-        JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        tablePanel.setBackground(new Color(255, 255, 255));  
+        String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_logo.png";
+		ImageIcon icon = new ImageIcon(iconPath);
+		setIconImage(icon.getImage());
 
-        String[] columnNames = { "Food ID", "Name", "Category", "Price", "Availability" };
+        JPanel categoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        categoryPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JLabel categoryLabel = new JLabel("Select Category: ");
+        categoryLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        categoryComboBox = new JComboBox<>(new String[]{
+                "All", "Starter", "Soups", "Tandoori Starter", "Papad", "Salad", "Shake", "Faluda", "Ice Cream",
+                "Sweets", "Mocktails", "Pizza", "Sandwich", "Papdi", "Tea/Coffee", "Juice", "Raita", "Chhach",
+                "Exotic Paneer", "Taste of Kaju", "Kofta Ka Kamal", "Veg Curry", "Chef Special", "Rice",
+                "Tandoori Roti/Tawa Roti", "Dal", "Chinese"
+        });
+        categoryComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
+        categoryComboBox.setBackground(new Color(224, 224, 224));
+        categoryComboBox.addActionListener(e -> loadFoodData((String) categoryComboBox.getSelectedItem()));
+
+        categoryPanel.add(categoryLabel);
+        categoryPanel.add(categoryComboBox);
+
+        String[] columnNames = {"Food ID", "Name", "Category", "Price", "Availability"};
         tableModel = new DefaultTableModel(columnNames, 0);
-        foodTable = new JTable(tableModel);
+        foodTable = new JTable(tableModel) {
+            @Override
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                String availability = (String) getValueAt(row, 4);
+                if ("Not Available".equals(availability)) {
+                    c.setBackground(Color.PINK);
+                } else {
+                    c.setBackground(Color.WHITE);
+                }
+                return c;
+            }
+        };
+        foodTable.setRowHeight(25);
+        foodTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        foodTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        JScrollPane foodScrollPane = new JScrollPane(foodTable);
 
-        foodTable.getTableHeader().setBackground(new Color(135, 206, 235));
-        foodTable.getTableHeader().setForeground(Color.WHITE);
-        foodTable.setBackground(new Color(239, 239, 239));  
+        String[] orderColumnNames = {"Food ID", "Name", "Price", "Quantity", "Total"};
+        orderTableModel = new DefaultTableModel(orderColumnNames, 0);
+        orderTable = new JTable(orderTableModel);
+        orderTable.setRowHeight(25);
+        orderTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        orderTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        JScrollPane orderScrollPane = new JScrollPane(orderTable);
 
-        loadFoodData();
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, foodScrollPane, orderScrollPane);
+        splitPane.setDividerLocation(600);
 
-        JScrollPane scrollPane = new JScrollPane(foodTable);
-        tablePanel.add(scrollPane, BorderLayout.CENTER);
-
-        add(tablePanel, BorderLayout.CENTER);
-
-        JPanel footerPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        footerPanel.setBackground(new Color(255, 255, 255));  
-
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         JButton addToOrderButton = new JButton("Add to Order");
-        addToOrderButton.setFont(new Font("Arial", Font.BOLD, 14));
-        addToOrderButton.setBackground(new Color(60, 179, 113));  
-        addToOrderButton.setForeground(Color.WHITE);
-        addToOrderButton.setFocusPainted(false);
-        addToOrderButton.addActionListener(e -> addToOrder());
-
         JButton generateBillButton = new JButton("Generate Bill");
-        generateBillButton.setFont(new Font("Arial", Font.BOLD, 14));
-        generateBillButton.setBackground(new Color(100, 149, 237)); 
-        generateBillButton.setForeground(Color.WHITE);
-        generateBillButton.setFocusPainted(false);
+
+        
+        styleButton(addToOrderButton, new Color(0, 128, 255), Color.WHITE);
+        styleButton(generateBillButton, new Color(34, 139, 34), Color.WHITE);
+
+        addToOrderButton.addActionListener(e -> addToOrder());
         generateBillButton.addActionListener(e -> generateBill());
 
-        footerPanel.add(addToOrderButton);
-        footerPanel.add(generateBillButton);
+        buttonPanel.add(addToOrderButton);
+        buttonPanel.add(generateBillButton);
 
-        add(footerPanel, BorderLayout.SOUTH);
+        add(categoryPanel, BorderLayout.NORTH);
+        add(splitPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
 
+        loadFoodData("All");
         setVisible(true);
     }
 
-    private void loadFoodData() {
-        try (Connection conn = databaseCode.getConnection(); Statement stmt = conn.createStatement()) {
+    private void styleButton(JButton button, Color background, Color foreground) {
+        button.setFont(new Font("Arial", Font.BOLD, 30));
+        button.setBackground(background);
+        button.setForeground(foreground);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+    }
+
+    private void loadFoodData(String category) {
+        tableModel.setRowCount(0);
+        try (Connection conn = databaseCode.getConnection();
+             Statement stmt = conn.createStatement()) {
+
             String query = "SELECT * FROM food";
+
+            if (!"All".equalsIgnoreCase(category)) {
+                query += " WHERE category = '" + category + "'";
+            }
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
                 int foodId = rs.getInt("food_id");
                 String name = rs.getString("name");
-                String category = rs.getString("category");
+                String foodCategory = rs.getString("category");
                 double price = rs.getDouble("price");
                 boolean availability = rs.getBoolean("availability");
 
                 String availabilityText = availability ? "Available" : "Not Available";
 
-                tableModel.addRow(new Object[] { foodId, name, category, price, availabilityText });
+                tableModel.addRow(new Object[]{foodId, name, foodCategory, price, availabilityText});
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error fetching food data: " + ex.getMessage());
@@ -108,7 +156,12 @@ public class FoodMenu extends JFrame {
         if (quantityStr != null && !quantityStr.isEmpty()) {
             try {
                 int quantity = Integer.parseInt(quantityStr);
+                double total = price * quantity;
+
                 selectedItems.add(new OrderItem(foodId, name, price, quantity));
+
+                orderTableModel.addRow(new Object[]{foodId, name, price, quantity, total});
+
                 JOptionPane.showMessageDialog(this, "Item added to order successfully!");
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid quantity. Please enter a valid number.");
@@ -122,75 +175,32 @@ public class FoodMenu extends JFrame {
             return;
         }
 
-        double totalAmount = 0.0;
-        StringBuilder billDetails = new StringBuilder();
-
-        billDetails.append("<html><body style='font-family:Arial; font-size:12px;'>");
-        billDetails.append("<h2 style='text-align:center;'>Hotel Management System</h2>");
-        billDetails.append("<h3 style='text-align:center;'>Bill Details</h3>");
-        billDetails.append("<table style='width:100%; border:1px solid black;'>");
-        billDetails.append("<tr><th style='text-align:left;'>Item</th><th>Quantity</th><th>Price</th><th>Total</th></tr>");
-
-        for (OrderItem item : selectedItems) {
-            double itemTotal = item.getPrice() * item.getQuantity();
-            totalAmount += itemTotal;
-            billDetails.append("<tr>")
-                    .append("<td>").append(item.getName()).append("</td>")
-                    .append("<td>").append(item.getQuantity()).append("</td>")
-                    .append("<td>₹").append(item.getPrice()).append("</td>")
-                    .append("<td>₹").append(itemTotal).append("</td>")
-                    .append("</tr>");
+        customerName = JOptionPane.showInputDialog(this, "Enter the customer's name:");
+        if (customerName == null || customerName.trim().isEmpty() || !customerName.matches("[a-zA-Z ]+")) {
+            JOptionPane.showMessageDialog(this, "Invalid customer name. Please enter alphabetic words");
+            return;
         }
 
-        double discountRate = 0.10; 
-        double discountAmount = totalAmount * discountRate;
-        double amountAfterDiscount = totalAmount - discountAmount;
 
-        double gstRate = 0.18; 
-        double gstAmount = amountAfterDiscount * gstRate;
-        double totalWithGst = amountAfterDiscount + gstAmount;
-
-        billDetails.append("<tr><td colspan='3' style='text-align:right;'><strong>Subtotal:</strong></td>")
-                .append("<td>₹").append(totalAmount).append("</td></tr>");
-        billDetails.append("<tr><td colspan='3' style='text-align:right;'><strong>Discount (10%):</strong></td>")
-                .append("<td>₹").append(discountAmount).append("</td></tr>");
-        billDetails.append("<tr><td colspan='3' style='text-align:right;'><strong>Amount after Discount:</strong></td>")
-                .append("<td>₹").append(amountAfterDiscount).append("</td></tr>");
-        billDetails.append("<tr><td colspan='3' style='text-align:right;'><strong>GST (18%):</strong></td>")
-                .append("<td>₹").append(gstAmount).append("</td></tr>");
-        billDetails.append("<tr><td colspan='3' style='text-align:right;'><strong>Total Amount:</strong></td>")
-                .append("<td>₹").append(totalWithGst).append("</td></tr>");
-
-        billDetails.append("</table>");
-        billDetails.append("</body></html>");
-
-        JEditorPane billPane = new JEditorPane("text/html", billDetails.toString());
-        billPane.setEditable(false);
-
-        JScrollPane scrollPane = new JScrollPane(billPane);
-        scrollPane.setPreferredSize(new Dimension(500, 400));
-
-        JOptionPane.showMessageDialog(this, scrollPane, "Generated Bill", JOptionPane.INFORMATION_MESSAGE);
-
-        saveBillToDatabase(totalWithGst);
-    }
-
-    private void saveBillToDatabase(double totalAmount) {
-        try (Connection conn = databaseCode.getConnection(); Statement stmt = conn.createStatement()) {
-
-            String insertBillQuery = "INSERT INTO bills (order_id, total_amount, bill_date) " + "VALUES (NULL, "
-                    + totalAmount + ", CURRENT_TIMESTAMP)";
-            stmt.executeUpdate(insertBillQuery);
-
-            JOptionPane.showMessageDialog(this, "Bill saved to database successfully!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error saving bill to database: " + ex.getMessage());
+        String customerNumberStr = JOptionPane.showInputDialog(this, "Enter the customer's 10-digit number:");
+        if (customerNumberStr == null || customerNumberStr.trim().isEmpty() || customerNumberStr.length() != 10 || !customerNumberStr.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "Invalid customer number. Please enter a 10-digit number.");
+            return;
         }
+
+        try {
+            
+            customerNumber = Long.parseLong(customerNumberStr);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid customer number. Please enter a valid 10-digit number.");
+            return;
+        }
+
+        BillGenerate billGenerator = new BillGenerate(selectedItems, customerName, customerNumber);
+        billGenerator.generateBill();
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(FoodMenu::new);
     }
 }
-
-

@@ -13,7 +13,7 @@ public class Login extends JFrame {
     private JPasswordField passwordField;
 
     public Login() {
-        setTitle("Hotel Management System - Login");
+        setTitle("Sawariya Hotel And Family Restaurant");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -21,10 +21,13 @@ public class Login extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
+        JLabel imageLabel = createImageLabel("D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_image1.jpg"); 
+        mainPanel.add(imageLabel, BorderLayout.NORTH);
+
         JLabel titleLabel = new JLabel("Hotel Management System Login", JLabel.CENTER);
         titleLabel.setFont(new Font("Verdana", Font.BOLD, 18));
         titleLabel.setBorder(new EmptyBorder(10, 0, 20, 0));
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
+        mainPanel.add(titleLabel, BorderLayout.CENTER);
 
         JPanel formPanel = new JPanel(new GridLayout(2, 2, 10, 10));
 
@@ -52,8 +55,14 @@ public class Login extends JFrame {
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Add main panel to the frame
         add(mainPanel);
+    }
+
+    private JLabel createImageLabel(String imagePath) {
+        ImageIcon imageIcon = new ImageIcon(imagePath); 
+        Image image = imageIcon.getImage(); // Get the image object
+        Image scaledImage = image.getScaledInstance(400, 100, Image.SCALE_SMOOTH); 
+        return new JLabel(new ImageIcon(scaledImage)); 
     }
 
     private void handleLogin(ActionEvent e) {

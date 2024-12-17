@@ -2,8 +2,6 @@ package in.hm;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -13,17 +11,31 @@ public class AddFoodForm extends JFrame {
 		setTitle("Food Management");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\food-icon.png";
+		String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_logo.png";
 		ImageIcon icon = new ImageIcon(iconPath);
 		setIconImage(icon.getImage());
 
-		setSize(600, 450);
+		setSize(600, 500);  
 		setLocationRelativeTo(null);
+
 		setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-
 		getContentPane().setBackground(new Color(245, 245, 245));
 
+		String imagePath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_image1.png";
+		ImageIcon imageIcon = new ImageIcon(imagePath);
+		Image img = imageIcon.getImage().getScaledInstance(200, 100, Image.SCALE_SMOOTH); 
+		imageIcon = new ImageIcon(img);
+		JLabel imageLabel = new JLabel(imageIcon);
+		imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+		gbc.insets = new Insets(10, 10, 20, 10); // Padding around the image
+		gbc.gridwidth = 2;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		add(imageLabel, gbc);
+
+		// Create form components below the image
 		JLabel nameLabel = createLabel("Name:");
 		JTextField nameField = createTextField();
 
@@ -40,10 +52,12 @@ public class AddFoodForm extends JFrame {
 		JButton addButton = createButton("Add");
 
 		gbc.insets = new Insets(10, 10, 10, 10); // Padding for components
+		gbc.gridwidth = 1; 
 		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
 
+		addComponentToGrid(nameLabel, gbc, 0, 1);
 		addComponentToGrid(nameField, gbc, 1, 1);
+
 		addComponentToGrid(categoryLabel, gbc, 0, 2);
 		addComponentToGrid(categoryField, gbc, 1, 2);
 
@@ -53,14 +67,13 @@ public class AddFoodForm extends JFrame {
 		addComponentToGrid(availabilityLabel, gbc, 0, 4);
 		addComponentToGrid(availabilityCheckBox, gbc, 1, 4);
 
+		// Set the button at the bottom, spanning the full width
 		gbc.gridwidth = 2;
+		gbc.gridy = 5;
 		gbc.anchor = GridBagConstraints.CENTER;
-
-		JPanel buttonPanel = new JPanel(new GridLayout(1, 4, 20, 10));
+		JPanel buttonPanel = new JPanel(new GridLayout(1, 1));
 		buttonPanel.setOpaque(false);
 		buttonPanel.add(addButton);
-
-		gbc.gridy = 5;
 		add(buttonPanel, gbc);
 
 		addButton.addActionListener(e -> {

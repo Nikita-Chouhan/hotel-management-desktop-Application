@@ -21,13 +21,11 @@ class BillPanel extends JFrame {
         setSize(600, 400);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-
-        // Table for Bill Items
+        
         JTable billTable = new JTable(billData, columnNames);
         JScrollPane scrollPane = new JScrollPane(billTable);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Footer Panel for Total Amount
         JPanel footerPanel = new JPanel(new BorderLayout());
         footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -50,7 +48,6 @@ class BillPanel extends JFrame {
     }
 
     private void printBill(String[][] billData, double totalAmount) {
-        // This is where you can add actual printing logic
         JOptionPane.showMessageDialog(this, "Printing the bill... (this can be replaced with real print logic)");
     }
 }

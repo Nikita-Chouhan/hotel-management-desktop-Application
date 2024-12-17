@@ -1,0 +1,10 @@
+Billing Details
+Booking ID: 1
+Customer Name: amita mishra
+Contact: 9879879879
+Booking Type: Lounge
+Party Type: Conference Meeting
+Booking Date: 2024-12-20
+End Time: 2024-12-21 02:30:12
+Rate: 800.0
+Total Amount: 3200.0
