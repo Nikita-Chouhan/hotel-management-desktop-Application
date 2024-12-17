@@ -43,6 +43,7 @@ public class DashBoard extends JFrame {
 
 		navbar.add(createFeatureButton("Food Management", e -> openFoodManagement()), gbc);
 		navbar.add(createFeatureButton("Food Menu", e -> openFoodMenu()), gbc);
+		navbar.add(createFeatureButton("Room Book", e -> roombook()), gbc);
 		navbar.add(createFeatureButton("Billing", e -> openBilling()), gbc);
 		navbar.add(createFeatureButton("Banquet Details", e -> banquet_Details()), gbc);
 		navbar.add(createFeatureButton("Banquets Booking", e -> openBanquetsBooking()), gbc);
@@ -61,6 +62,7 @@ public class DashBoard extends JFrame {
 		background.add(topPanel, BorderLayout.NORTH);
 	}
 	
+
 
 	private JButton createFeatureButton(String text, ActionListener action) {
 		JButton button = new JButton(text);
@@ -173,6 +175,11 @@ public class DashBoard extends JFrame {
 
 		button.addActionListener(action);
 		return button;
+	}
+
+	private void roombook() {
+		SwingUtilities.invokeLater(()-> new RoomBooking().setVisible(true));;
+		
 	}
 
 	private void openAddNewUserForm() {
