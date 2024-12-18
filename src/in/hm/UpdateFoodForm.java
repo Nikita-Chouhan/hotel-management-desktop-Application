@@ -15,9 +15,9 @@
 	        setTitle("Update Food");
 	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	        
-	        String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\food-icon.png"; 
-	        ImageIcon icon = new ImageIcon(iconPath);
-	        setIconImage(icon.getImage());
+	        String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_logo.png";
+	    	ImageIcon icon = new ImageIcon(iconPath);
+	    	setIconImage(icon.getImage());
 	        
 	        setSize(600, 500);
 	        setLocationRelativeTo(null);

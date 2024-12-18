@@ -9,7 +9,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FoodMenu extends JFrame {
 
@@ -21,6 +23,8 @@ public class FoodMenu extends JFrame {
     private List<OrderItem> selectedItems = new ArrayList<>();
     private String customerName;
     private long customerNumber;
+    private Map<String, List<OrderItem>> tableOrders = new HashMap<>();
+    
 
     public FoodMenu() {
         setTitle("Food Menu - Order System");
@@ -72,8 +76,9 @@ public class FoodMenu extends JFrame {
         foodTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
         JScrollPane foodScrollPane = new JScrollPane(foodTable);
 
-        String[] orderColumnNames = {"Food ID", "Name", "Price", "Quantity", "Total"};
+        String[] orderColumnNames = {"Table Number", "Food ID", "Name", "Price", "Quantity", "Total"};
         orderTableModel = new DefaultTableModel(orderColumnNames, 0);
+
         orderTable = new JTable(orderTableModel);
         orderTable.setRowHeight(25);
         orderTable.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -147,7 +152,11 @@ public class FoodMenu extends JFrame {
             JOptionPane.showMessageDialog(this, "Please select a food item to add to the order.");
             return;
         }
-
+        String tableNumber = JOptionPane.showInputDialog(this, "Enter Table Number:").trim();
+        if (tableNumber == null || tableNumber.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Table number is required.");
+            return;
+        }
         int foodId = (int) tableModel.getValueAt(selectedRow, 0);
         String name = (String) tableModel.getValueAt(selectedRow, 1);
         double price = (double) tableModel.getValueAt(selectedRow, 3);
@@ -158,10 +167,10 @@ public class FoodMenu extends JFrame {
                 int quantity = Integer.parseInt(quantityStr);
                 double total = price * quantity;
 
-                selectedItems.add(new OrderItem(foodId, name, price, quantity));
+                OrderItem orderItem = new OrderItem(tableNumber, foodId, name, price, quantity);
+                tableOrders.computeIfAbsent(tableNumber, k -> new ArrayList<>()).add(orderItem);
 
-                orderTableModel.addRow(new Object[]{foodId, name, price, quantity, total});
-
+                orderTableModel.addRow(new Object[]{tableNumber, foodId, name, price, quantity, total});
                 JOptionPane.showMessageDialog(this, "Item added to order successfully!");
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid quantity. Please enter a valid number.");
@@ -170,34 +179,96 @@ public class FoodMenu extends JFrame {
     }
 
     private void generateBill() {
-        if (selectedItems.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No items in the order. Please add items to generate a bill.");
+        if (tableOrders.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No items in the order list. Please add items to generate a bill.");
             return;
         }
 
-        customerName = JOptionPane.showInputDialog(this, "Enter the customer's name:");
-        if (customerName == null || customerName.trim().isEmpty() || !customerName.matches("[a-zA-Z ]+")) {
-            JOptionPane.showMessageDialog(this, "Invalid customer name. Please enter alphabetic words");
+        String tableNumber = JOptionPane.showInputDialog(this, "Enter Table Number to generate bill:").trim();
+        if (tableNumber == null || tableNumber.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Table number is required to generate a bill.");
             return;
         }
 
-
-        String customerNumberStr = JOptionPane.showInputDialog(this, "Enter the customer's 10-digit number:");
-        if (customerNumberStr == null || customerNumberStr.trim().isEmpty() || customerNumberStr.length() != 10 || !customerNumberStr.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this, "Invalid customer number. Please enter a 10-digit number.");
+        List<OrderItem> tableSpecificItems = tableOrders.get(tableNumber);
+        if (tableSpecificItems == null || tableSpecificItems.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No items found for table number: " + tableNumber);
             return;
         }
 
-        try {
-            
-            customerNumber = Long.parseLong(customerNumberStr);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid customer number. Please enter a valid 10-digit number.");
-            return;
-        }
+        // Proceed with bill generation
+        JDialog dialog = new JDialog(this, "Customer Details", true);
+        dialog.setSize(400, 300);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setLocationRelativeTo(this);
 
-        BillGenerate billGenerator = new BillGenerate(selectedItems, customerName, customerNumber);
-        billGenerator.generateBill();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel nameLabel = new JLabel("Customer Name:");
+        nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        dialog.add(nameLabel, gbc);
+
+        JTextField nameField = new JTextField();
+        nameField.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        dialog.add(nameField, gbc);
+
+        JLabel numberLabel = new JLabel("Mobile Number:");
+        numberLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        dialog.add(numberLabel, gbc);
+
+        JTextField numberField = new JTextField();
+        numberField.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        dialog.add(numberField, gbc);
+
+        JButton submitButton = new JButton("Generate Bill");
+        submitButton.setFont(new Font("Arial", Font.BOLD, 14));
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        dialog.add(submitButton, gbc);
+
+        submitButton.addActionListener(e -> {
+            customerName = nameField.getText().trim();
+            String customerNumberStr = numberField.getText().trim();
+
+            if (customerName.isEmpty() || customerNumberStr.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "All fields are required.");
+                return;
+            }
+
+            if (!customerName.matches("[a-zA-Z ]+")) {
+                JOptionPane.showMessageDialog(dialog, "Invalid name. Please enter alphabetic words.");
+                return;
+            }
+
+            if (!customerNumberStr.matches("\\d{10}")) {
+                JOptionPane.showMessageDialog(dialog, "Invalid mobile number. Please enter a 10-digit number.");
+                return;
+            }
+
+            try {
+                customerNumber = Long.parseLong(customerNumberStr);
+
+                dialog.dispose();
+
+                BillGenerate billGenerator = new BillGenerate(tableSpecificItems, customerName, customerNumber, tableNumber);
+                billGenerator.generateBill();
+                JOptionPane.showMessageDialog(this, "Bill generated successfully for table number: " + tableNumber);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Invalid mobile number format.");
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
     public static void main(String[] args) {

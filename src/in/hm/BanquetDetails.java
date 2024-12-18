@@ -24,6 +24,10 @@ public class BanquetDetails extends JFrame {
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout(15, 15));
 
+		String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_logo.png";
+		ImageIcon icon = new ImageIcon(iconPath);
+		setIconImage(icon.getImage());
+
 		Font headerFont = new Font("Arial", Font.BOLD, 14);
 		Font tableFont = new Font("Arial", Font.PLAIN, 14);
 
@@ -261,103 +265,102 @@ public class BanquetDetails extends JFrame {
 	}
 
 	private void generateBill() {
-	    int selectedRow = banquetTable.getSelectedRow();
-	    if (selectedRow == -1) {
-	        JOptionPane.showMessageDialog(this, "Please select a booking to generate the bill.");
-	        return;
-	    }
+		int selectedRow = banquetTable.getSelectedRow();
+		if (selectedRow == -1) {
+			JOptionPane.showMessageDialog(this, "Please select a booking to generate the bill.");
+			return;
+		}
 
-	    int bookingId = (int) tableModel.getValueAt(selectedRow, 0);
+		int bookingId = (int) tableModel.getValueAt(selectedRow, 0);
 
-	    try (Connection conn = databaseCode.getConnection();
-	         Statement stmt = conn.createStatement()) {
+		try (Connection conn = databaseCode.getConnection(); Statement stmt = conn.createStatement()) {
 
-	        String query = "SELECT * FROM banquet_bookings WHERE booking_id = " + bookingId;
-	        ResultSet rs = stmt.executeQuery(query);
+			String query = "SELECT * FROM banquet_bookings WHERE booking_id = " + bookingId;
+			ResultSet rs = stmt.executeQuery(query);
 
-	        if (rs.next()) {
-	            String customerName = rs.getString("customer_name");
-	            String contactNumber = rs.getString("contact_number");
-	            String bookingDate = rs.getString("booking_date");
-	            String endDate = rs.getString("end_time"); 
-	            String banquetType = rs.getString("type");  
-	            double paymentAmount = rs.getDouble("amount_paid");
-	            double gst = paymentAmount * 0.12; 
-	            double totalAmount = paymentAmount + gst;
+			if (rs.next()) {
+				String customerName = rs.getString("customer_name");
+				String contactNumber = rs.getString("contact_number");
+				String bookingDate = rs.getString("booking_date");
+				String endDate = rs.getString("end_time");
+				String banquetType = rs.getString("type");
+				double paymentAmount = rs.getDouble("amount_paid");
+				double gst = paymentAmount * 0.12;
+				double totalAmount = paymentAmount + gst;
 
-	            JDialog billDialog = new JDialog(this, "Bill Details", true);
-	            billDialog.setSize(500, 600); 
-	            billDialog.setLocationRelativeTo(this);
-	            billDialog.setLayout(new BorderLayout());
+				JDialog billDialog = new JDialog(this, "Bill Details", true);
+				billDialog.setSize(500, 600);
+				billDialog.setLocationRelativeTo(this);
+				billDialog.setLayout(new BorderLayout());
 
-	            JPanel billPanel = new JPanel();
-	            billPanel.setLayout(new BoxLayout(billPanel, BoxLayout.Y_AXIS));
-	            billPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-	            billPanel.setBackground(Color.WHITE);
+				JPanel billPanel = new JPanel();
+				billPanel.setLayout(new BoxLayout(billPanel, BoxLayout.Y_AXIS));
+				billPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+				billPanel.setBackground(Color.WHITE);
 
-	            JLabel lblTitle = new JLabel("Banquet Booking Bill");
-	            lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
-	            lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+				JLabel lblTitle = new JLabel("Banquet Booking Bill");
+				lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
+				lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-	            JPanel detailsPanel = new JPanel();
-	            detailsPanel.setLayout(new GridLayout(0, 2, 10, 10));  // Grid for neat rows and columns
-	            detailsPanel.setBackground(Color.WHITE);
+				JPanel detailsPanel = new JPanel();
+				detailsPanel.setLayout(new GridLayout(0, 2, 10, 10)); // Grid for neat rows and columns
+				detailsPanel.setBackground(Color.WHITE);
 
-	            detailsPanel.add(new JLabel("Booking ID:"));
-	            detailsPanel.add(new JLabel(String.valueOf(bookingId)));
-	            
-	            detailsPanel.add(new JLabel("Customer Name:"));
-	            detailsPanel.add(new JLabel(customerName));
-	            
-	            detailsPanel.add(new JLabel("Contact Number:"));
-	            detailsPanel.add(new JLabel(contactNumber));
-	            
-	            detailsPanel.add(new JLabel("Booking Date:"));
-	            detailsPanel.add(new JLabel(bookingDate));
-	            
-	            detailsPanel.add(new JLabel("End Date:"));
-	            detailsPanel.add(new JLabel(endDate));
-	            
-	            detailsPanel.add(new JLabel("Banquet Type:"));
-	            detailsPanel.add(new JLabel(banquetType));
+				detailsPanel.add(new JLabel("Booking ID:"));
+				detailsPanel.add(new JLabel(String.valueOf(bookingId)));
 
-	            detailsPanel.add(new JLabel("Payment Amount:"));
-	            detailsPanel.add(new JLabel("₹" + String.format("%.2f", paymentAmount)));
-	            
-	            detailsPanel.add(new JLabel("GST (12%):"));
-	            detailsPanel.add(new JLabel("₹" + String.format("%.2f", gst)));
-	            
-	            detailsPanel.add(new JLabel("Total Amount:"));
-	            detailsPanel.add(new JLabel("₹" + String.format("%.2f", totalAmount)));
+				detailsPanel.add(new JLabel("Customer Name:"));
+				detailsPanel.add(new JLabel(customerName));
 
-	            billPanel.add(lblTitle);
-	            billPanel.add(Box.createVerticalStrut(20));
-	            billPanel.add(detailsPanel);
+				detailsPanel.add(new JLabel("Contact Number:"));
+				detailsPanel.add(new JLabel(contactNumber));
 
-	            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-	            JButton btnSaveAsPDF = new JButton("Save as PDF");
-	            btnSaveAsPDF.setFont(new Font("Arial", Font.BOLD, 14));
-	            btnSaveAsPDF.addActionListener(e -> saveBillAsPDF(bookingId, customerName, contactNumber, bookingDate,
-	                    paymentAmount, gst, totalAmount));
+				detailsPanel.add(new JLabel("Booking Date:"));
+				detailsPanel.add(new JLabel(bookingDate));
 
-	            JButton btnClose = new JButton("Close");
-	            btnClose.setFont(new Font("Arial", Font.BOLD, 14));
-	            btnClose.addActionListener(e -> billDialog.dispose());
+				detailsPanel.add(new JLabel("End Date:"));
+				detailsPanel.add(new JLabel(endDate));
 
-	            buttonPanel.add(btnSaveAsPDF);
-	            buttonPanel.add(btnClose);
+				detailsPanel.add(new JLabel("Banquet Type:"));
+				detailsPanel.add(new JLabel(banquetType));
 
-	            billDialog.add(billPanel, BorderLayout.CENTER);
-	            billDialog.add(buttonPanel, BorderLayout.SOUTH);
+				detailsPanel.add(new JLabel("Payment Amount:"));
+				detailsPanel.add(new JLabel("₹" + String.format("%.2f", paymentAmount)));
 
-	            billDialog.setVisible(true);
-	        } else {
-	            JOptionPane.showMessageDialog(this, "No details found for the selected booking.");
-	        }
+				detailsPanel.add(new JLabel("GST (12%):"));
+				detailsPanel.add(new JLabel("₹" + String.format("%.2f", gst)));
 
-	    } catch (Exception ex) {
-	        JOptionPane.showMessageDialog(this, "Error retrieving booking details: " + ex.getMessage());
-	    }
+				detailsPanel.add(new JLabel("Total Amount:"));
+				detailsPanel.add(new JLabel("₹" + String.format("%.2f", totalAmount)));
+
+				billPanel.add(lblTitle);
+				billPanel.add(Box.createVerticalStrut(20));
+				billPanel.add(detailsPanel);
+
+				JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+				JButton btnSaveAsPDF = new JButton("Save as PDF");
+				btnSaveAsPDF.setFont(new Font("Arial", Font.BOLD, 14));
+				btnSaveAsPDF.addActionListener(e -> saveBillAsPDF(bookingId, customerName, contactNumber, bookingDate,
+						paymentAmount, gst, totalAmount));
+
+				JButton btnClose = new JButton("Close");
+				btnClose.setFont(new Font("Arial", Font.BOLD, 14));
+				btnClose.addActionListener(e -> billDialog.dispose());
+
+				buttonPanel.add(btnSaveAsPDF);
+				buttonPanel.add(btnClose);
+
+				billDialog.add(billPanel, BorderLayout.CENTER);
+				billDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+				billDialog.setVisible(true);
+			} else {
+				JOptionPane.showMessageDialog(this, "No details found for the selected booking.");
+			}
+
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, "Error retrieving booking details: " + ex.getMessage());
+		}
 	}
 
 	private void saveBillAsPDF(int bookingId, String customerName, String contactNumber, String bookingDate,

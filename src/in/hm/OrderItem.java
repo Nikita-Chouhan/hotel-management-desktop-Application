@@ -6,7 +6,7 @@ class OrderItem {
     private double price;
     private int quantity;
 
-    public OrderItem(int foodId, String name, double price, int quantity) {
+    public OrderItem(String tableNumber, int foodId, String name, double price, int quantity) {
         this.foodId = foodId;
         this.name = name;
         this.price = price;

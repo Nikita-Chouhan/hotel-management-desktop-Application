@@ -29,13 +29,12 @@ public class AddFoodForm extends JFrame {
 		JLabel imageLabel = new JLabel(imageIcon);
 		imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		gbc.insets = new Insets(10, 10, 20, 10); // Padding around the image
+		gbc.insets = new Insets(10, 10, 20, 10); 
 		gbc.gridwidth = 2;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		add(imageLabel, gbc);
 
-		// Create form components below the image
 		JLabel nameLabel = createLabel("Name:");
 		JTextField nameField = createTextField();
 
@@ -51,7 +50,7 @@ public class AddFoodForm extends JFrame {
 
 		JButton addButton = createButton("Add");
 
-		gbc.insets = new Insets(10, 10, 10, 10); // Padding for components
+		gbc.insets = new Insets(10, 10, 10, 10); 
 		gbc.gridwidth = 1; 
 		gbc.anchor = GridBagConstraints.WEST;
 
@@ -67,7 +66,6 @@ public class AddFoodForm extends JFrame {
 		addComponentToGrid(availabilityLabel, gbc, 0, 4);
 		addComponentToGrid(availabilityCheckBox, gbc, 1, 4);
 
-		// Set the button at the bottom, spanning the full width
 		gbc.gridwidth = 2;
 		gbc.gridy = 5;
 		gbc.anchor = GridBagConstraints.CENTER;

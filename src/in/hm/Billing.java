@@ -13,6 +13,10 @@ public class Billing extends JFrame {
 
     public Billing() {
 
+    	 String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_logo.png";
+     	ImageIcon icon = new ImageIcon(iconPath);
+     	setIconImage(icon.getImage());
+     	
         try (Connection conn = databaseCode.getConnection()) {
             if (conn == null) {
                 JOptionPane.showMessageDialog(this, "Database connection failed.", "Error", JOptionPane.ERROR_MESSAGE);

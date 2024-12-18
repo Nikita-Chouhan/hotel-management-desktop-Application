@@ -18,13 +18,17 @@ public class BanquetBooking extends JFrame {
 	private JCalendarPanel calendar;
 	private DefaultTableModel bookingTableModel;
 	private JTable bookingTable;
-	
+
 	public BanquetBooking() {
 		setTitle("Banquet Booking");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setSize(900, 600);
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout(15, 15));
+
+		String iconPath = "D:\\Spring Projects\\HotelManagement\\src\\Images\\hsfs_logo.png";
+		ImageIcon icon = new ImageIcon(iconPath);
+		setIconImage(icon.getImage());
 
 		Font headerFont = new Font("Arial", Font.BOLD, 16);
 		Font tableFont = new Font("Arial", Font.PLAIN, 14);
@@ -50,8 +54,8 @@ public class BanquetBooking extends JFrame {
 
 				String[] options = { "Hall", "Lounge", "Both" };
 				String type = (String) JOptionPane.showInputDialog(BanquetBooking.this, "Select booking type:",
-						"Select Room Type", JOptionPane.PLAIN_MESSAGE, null, options, options[0] // Default selection,
-																									// can be "Hall"
+						"Select Room Type", JOptionPane.PLAIN_MESSAGE, null, options, options[0]
+
 				);
 
 				if (type == null)
@@ -174,7 +178,7 @@ public class BanquetBooking extends JFrame {
 		formPanel.add(contactField);
 
 		JTextField endTimeField = new JTextField("yyyy-mm-dd");
-		endTimeField.setForeground(Color.GRAY); 
+		endTimeField.setForeground(Color.GRAY);
 		formPanel.add(new JLabel("Booking Duration (End Time):"));
 		formPanel.add(endTimeField);
 
@@ -189,7 +193,7 @@ public class BanquetBooking extends JFrame {
 			public void focusLost(java.awt.event.FocusEvent evt) {
 				if (endTimeField.getText().isEmpty()) {
 					endTimeField.setText("yyyy-mm-dd");
-					endTimeField.setForeground(Color.GRAY); 
+					endTimeField.setForeground(Color.GRAY);
 				}
 			}
 		});

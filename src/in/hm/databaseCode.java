@@ -44,6 +44,4 @@ public class databaseCode {
 		return 0.0;
 	}
 
-	
-		
 }
